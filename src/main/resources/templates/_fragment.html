@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>_fragment</title>
+</head>
+<body>
+    <div id="newblog-container" th:fragment="newBlogList">
+        <div  class="ui inverted link list" >
+            <a href="#" th:href="@{/blog/{id}(id=${blog.id})}" target="_blank" class="item" th:each="blog : ${newBlogs}" th:text="${blog.title}" >用户故事 (User Story)</a>
+        </div>
+    </div>
+
+    <th:block th:fragment="script">
+        <script>
+            $('#newblog-container').load(/*[[@{/footer/newblog}]]*/"/footer/newblog");
+        </script>
+    </th:block>
+
+</body>
+</html>

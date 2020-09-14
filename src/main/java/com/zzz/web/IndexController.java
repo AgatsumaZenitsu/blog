@@ -1,0 +1,69 @@
+package com.zzz.web;
+
+import com.zzz.pojo.Blog;
+import com.zzz.service.BlogService;
+import com.zzz.service.TypeService;
+import com.zzz.vo.BlogQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * Created by zzz on 2020-5-12
+ */
+@Controller
+public class IndexController {
+
+    @Autowired
+    BlogService blogService;
+
+    @Autowired
+    TypeService typeService;
+
+    @GetMapping("/")
+    public String index(@PageableDefault(size = 8, sort = {"updateTime"}, direction = Sort.Direction.DESC) Pageable pageable,
+                        Model model) {
+        model.addAttribute("page", blogService.listBlog(pageable));
+        model.addAttribute("types", typeService.listTypeTop(6));
+        model.addAttribute("recommendBlogs", blogService.listRecommendBlogTop(8));
+        return "index";
+    }
+
+    @GetMapping("/blog/{id}")
+    public String blog(@PathVariable Long id, Model model) {
+        model.addAttribute("blog", blogService.getAndConvert(id));
+//        model.addAttribute("blog", blogService.getBlog(id));
+        return "blog";
+    }
+
+    @PostMapping("/search")
+    public String search(@PageableDefault(size = 8, sort = {"updateTime"}, direction = Sort.Direction.DESC) Pageable pageable,
+                         Model model, @RequestParam String query) {
+
+        model.addAttribute("page", blogService.listBlog("%"+query+"%", pageable));
+        model.addAttribute("query", query);
+        return "search";
+    }
+
+    @GetMapping("/footer/newblog")
+    public String newBlogs(Model model) {
+        model.addAttribute("newBlogs", blogService.listRecommendBlogTop(3));
+        return "_fragment :: newBlogList";
+    }
+
+
+    // 阻止 mvc 对 图标 的默认访问
+    @Controller
+    static class FaviconController {
+
+        @GetMapping("favicon.ico")
+        @ResponseBody
+        void returnNoFavicon() {
+        }
+    }
+}
